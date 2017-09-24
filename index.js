@@ -9,7 +9,7 @@ const cleanware = (filters = {}) => {
                 let result = req.body[input] // before transformations
 
                 if (filters[input].every((transformation) => {
-                    result = transformation(result)
+                    return result = transformation(result)
                 })) {
                     req.clean[input] = result
                 } else {
