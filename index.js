@@ -1,24 +1,35 @@
 const cleanware = (filters = {}) => {
 
     const middleware = (req,res,next) => {
-        let bodyKeys = Object.keys(req.body)
-        req.clean = req.clean || {}
+        req.unfiltered = req.unfiltered || []
 
-        bodyKeys.forEach((input) => {
-            if (filters[input]) { // if there's a filter for the input
-                let result = req.body[input] // before transformations
-
-                if (filters[input].every((transformation) => {
-                    return result = transformation(result)
-                })) {
-                    req.clean[input] = result
+        function clean (obj) {
+            (Object.keys(obj)).forEach((input) => {
+                if (typeof obj[input] === 'object') {
+                    clean(obj[input])
                 } else {
-                    next(Error(`invalid ${input}`))
+                    let filterKey = input
+                    filterKey = input.split('_')[0] // pull filter from filter_inputName
+
+                    if (filters[filterKey]) { // if there's a filter for the input
+                        let result = obj[input], // before transformations
+                            currentTransformation = 0
+
+                        if (filters[filterKey].every((transformation, i) => {
+                            currentTransformation = i
+                            return result = transformation(result)
+                        })) {
+                            obj[input] = result
+                        } else {
+                            next(Error(`invalid ${input} at transformation ${currentTransformation + 1}`))
+                        }
+                    } else { // no filters specified
+                        req.unfiltered.push(input) // keep track of which inputs passed through
+                    }
                 }
-            } else { // no filters specified
-                req.clean[input] = req.body[input] // so it just passes through
-            }
-        })
+            })
+        }
+        clean(req.body)
         return next()
     }
     return middleware
