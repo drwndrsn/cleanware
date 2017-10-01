@@ -9,10 +9,13 @@ const cleanware = (filters = {}) => {
                     clean(obj[input])
                 } else {
                     let filterKey = input
-                    filterKey = input.split('_')[0] // pull filter from filter_inputName
-
-                    if (filters[filterKey]) { // if there's a filter for the input
-                        let result = obj[input], // before transformations
+                    // pull filter from filter_inputName
+                    filterKey = input.split('_')[0] 
+                    
+                    // if there's a matching filter and the input is not empty 
+                    if (filters[filterKey] && obj[input]) { 
+                        // starting state before transformations
+                        let result = obj[input], 
                             currentTransformation = 0
 
                         if (filters[filterKey].every((transformation, i) => {
@@ -23,8 +26,9 @@ const cleanware = (filters = {}) => {
                         } else {
                             next(Error(`invalid ${input} at transformation ${currentTransformation + 1}`))
                         }
-                    } else { // no filters specified
-                        req.unfiltered.push(input) // keep track of which inputs passed through
+                    } else {
+                        // keep track of which inputs passed through
+                        req.unfiltered.push(input) 
                     }
                 }
             })
