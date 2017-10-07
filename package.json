@@ -1,6 +1,6 @@
 {
   "name": "cleanware",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Express middleware for sanitizing and transforming input",
   "main": "index.js",
   "scripts": {
