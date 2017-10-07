@@ -2,6 +2,7 @@ const cleanware = (filters = {}) => {
 
     const middleware = (req,res,next) => {
         req.unfiltered = req.unfiltered || []
+        let error = null
 
         function clean (obj) {
             (Object.keys(obj)).forEach((input) => {
@@ -24,7 +25,7 @@ const cleanware = (filters = {}) => {
                         })) {
                             obj[input] = result
                         } else {
-                            next(Error(`invalid ${input} at transformation ${currentTransformation + 1}`))
+                            return error = Error(`invalid ${input} at transformation ${currentTransformation + 1}`)
                         }
                     } else {
                         // keep track of which inputs passed through
@@ -34,7 +35,7 @@ const cleanware = (filters = {}) => {
             })
         }
         clean(req.body)
-        return next()
+        return error ? next(error) : next()
     }
     return middleware
 }
